@@ -104,3 +104,6 @@ ENV/
 # IDE settings
 .vscode/
 .idea/
+
+# Misc
+.DS_Store

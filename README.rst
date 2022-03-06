@@ -26,7 +26,10 @@ Ping Pong in a different style than you know it ;-)
 Features
 --------
 
-* TODO
+* Show the screen to play the game. **NO** functionality at the moment. But this will come soon 😁
+
+.. image:: img/playscreen.png
+
 
 Credits
 -------

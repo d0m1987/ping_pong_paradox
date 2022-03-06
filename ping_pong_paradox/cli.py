@@ -2,13 +2,14 @@
 import sys
 import click
 
+import ping_pong_paradox
 
 @click.command()
 def main(args=None):
     """Console script for ping_pong_paradox."""
-    click.echo("Replace this message by putting your code into "
-               "ping_pong_paradox.cli.main")
-    click.echo("See click documentation at https://click.palletsprojects.com/")
+    click.echo("Starting Ping Pong Paradox")
+    ping_pong_paradox.main()
+    click.echo("Shutting Ping Pong Paradox down. Thanks for playing 😊👋")
     return 0
 
 
