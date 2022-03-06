@@ -28,7 +28,7 @@ Features
 
 * Show the screen to play the game. **NO** functionality at the moment. But this will come soon 😁
 
-.. image:: img/playscreen.png
+.. image:: https://raw.githubusercontent.com/d0m1987/ping_pong_paradox/master/docs/img/playscreen.png
 
 
 Credits
