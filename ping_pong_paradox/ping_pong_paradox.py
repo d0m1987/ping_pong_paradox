@@ -86,10 +86,41 @@ class Net:
         [pygame.draw.rect(**rectangle) for rectangle in self.rectangles]
 
 
-def draw(window: pygame.Surface, paddles: List[Paddle], net: Net):
+class Ball:
+    MAX_RADIUS = 25
+    COLOR = WHITE
+
+    def __init__(
+        self,
+        window: pygame.Surface,
+        x: int = None,
+        y: int = None,
+        radius: int = None,
+    ) -> None:
+
+        self.window = window
+        self.x = x or (window.get_width() * 0.4)
+        self.y = y or (window.get_height() // 2)
+        self.radius = radius or Ball.MAX_RADIUS // 2
+
+    def draw(self):
+        pygame.draw.circle(
+            surface=self.window,
+            color=self.COLOR,
+            center=(self.x, self.y),
+            radius=self.radius
+        )
+
+
+def draw(
+        window: pygame.Surface,
+        paddles: List[Paddle],
+        net: Net,
+        ball: Ball):
     window.fill(color=BLACK)
     [paddle.draw() for paddle in paddles]
     net.draw()
+    ball.draw()
     pygame.display.update()
 
 
@@ -100,6 +131,7 @@ def main():
     paddles = [Paddle(WINDOW), Paddle(WINDOW, is_right_paddle=True)]
     net = Net(WINDOW)
     net.calculate_net(20)
+    ball = Ball(WINDOW)
 
     while run:
         clock.tick(FPS)
@@ -108,7 +140,7 @@ def main():
                 run = False
                 break
 
-        draw(WINDOW, paddles=paddles, net=net)
+        draw(WINDOW, paddles=paddles, net=net, ball=ball)
 
     pygame.quit()
 
