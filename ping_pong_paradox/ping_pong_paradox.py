@@ -89,6 +89,7 @@ class Net:
 class Ball:
     MAX_RADIUS = 25
     COLOR = WHITE
+    MAX_VELOCITY = 25
 
     def __init__(
         self,
@@ -96,12 +97,16 @@ class Ball:
         x: int = None,
         y: int = None,
         radius: int = None,
+        x_velocity:int = None,
+        y_velocity:int = None
     ) -> None:
 
         self.window = window
         self.x = x or (window.get_width() * 0.4)
         self.y = y or (window.get_height() // 2)
         self.radius = radius or Ball.MAX_RADIUS // 2
+        self.x_velocity = x_velocity or Ball.MAX_VELOCITY // 2
+        self.y_velocity = y_velocity or Ball.MAX_VELOCITY // 2
 
     def draw(self):
         pygame.draw.circle(
@@ -110,7 +115,10 @@ class Ball:
             center=(self.x, self.y),
             radius=self.radius
         )
-
+    
+    def move(self):
+        self.x += self.x_velocity
+        self.y += self.y_velocity
 
 def draw(
         window: pygame.Surface,
@@ -120,6 +128,7 @@ def draw(
     window.fill(color=BLACK)
     [paddle.draw() for paddle in paddles]
     net.draw()
+    ball.move()
     ball.draw()
     pygame.display.update()
 
@@ -131,7 +140,7 @@ def main():
     paddles = [Paddle(WINDOW), Paddle(WINDOW, is_right_paddle=True)]
     net = Net(WINDOW)
     net.calculate_net(20)
-    ball = Ball(WINDOW)
+    ball = Ball(WINDOW, x_velocity=1, y_velocity=1)
 
     while run:
         clock.tick(FPS)
