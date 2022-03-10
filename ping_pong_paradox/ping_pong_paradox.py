@@ -23,12 +23,16 @@ class Paddle:
     COLOR = WHITE
     BORDER_DISTANCE = 10
     WIDTH = 10
+    # The name MAX_VELOCITY is used since in the future it is planned to in-/decrease 
+    # paddle movement speed dynamically
+    MAX_VELOCITY = 5 
 
     def __init__(
             self,
             window: pygame.Surface,
             height: int = 100,
-            is_right_paddle: bool = False) -> None:
+            is_right_paddle: bool = False,
+            velocity:int = None) -> None:
 
         self.window = window
         self.height = height
@@ -37,6 +41,7 @@ class Paddle:
         self.x = self.window.get_width() - Paddle.WIDTH - \
             Paddle.BORDER_DISTANCE if is_right_paddle else Paddle.BORDER_DISTANCE
         self.y = self.centered_y_value()
+        self.velocity = velocity or Paddle.MAX_VELOCITY // 2
 
     def centered_y_value(self):
         '''
@@ -51,6 +56,17 @@ class Paddle:
             rect=(self.x, self.y, Paddle.WIDTH, self.height)
         )
 
+    def up(self):
+        if (self.y - self.velocity) > 0:
+            self.y -= self.velocity 
+        else:
+            self.y = 0
+    
+    def down(self):
+        if (self.y + self.height + self.velocity) < self.window.get_height():
+            self.y += self.velocity 
+        else:
+            self.y = self.window.get_height() - self.height
 
 class Net:
     COLOR = WHITE
