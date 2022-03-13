@@ -25,7 +25,7 @@ class Paddle:
     WIDTH = 10
     # The name MAX_VELOCITY is used since in the future it is planned to in-/decrease 
     # paddle movement speed dynamically
-    MAX_VELOCITY = 5 
+    MAX_VELOCITY = 5
 
     def __init__(
             self,
@@ -36,6 +36,7 @@ class Paddle:
 
         self.window = window
         self.height = height
+        self.is_right_paddle = is_right_paddle
         # If it is the right paddle, calculate the paddle upper left corner x coordinate.
         # For the left paddle, just set the distance between left border and paddle.
         self.x = self.window.get_width() - Paddle.WIDTH - \
@@ -61,13 +62,33 @@ class Paddle:
             self.y -= self.velocity 
         else:
             self.y = 0
-    
+
     def down(self):
         if (self.y + self.height + self.velocity) < self.window.get_height():
             self.y += self.velocity 
         else:
             self.y = self.window.get_height() - self.height
 
+    def try_to_hit_the_ball(self, ball:"Ball"):
+        if self.y <= ball.y <= self.y + self.height:
+            if not self.is_right_paddle and (ball.x - ball.radius <= self.x + self.WIDTH):
+                ball.x_velocity *= -1
+
+                middle_y = self.y + self.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (self.height / 2) / ball.MAX_VELOCITY
+                y_vel = difference_in_y / reduction_factor
+                ball.y_velocity = -1 * y_vel
+
+            if self.is_right_paddle and (ball.x + ball.radius >= self.x):
+                ball.x_velocity *= -1
+
+                middle_y = self.y + self.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (self.height / 2) / ball.MAX_VELOCITY
+                y_vel = difference_in_y / reduction_factor
+                ball.y_velocity = -1 * y_vel
+                
 class Net:
     COLOR = WHITE
     WIDTH = 10
@@ -184,14 +205,10 @@ def collision_handler(window:pygame.Surface ,ball:Ball, paddles:List[Paddle]):
         ball.y_velocity *= -1
     
     # Left paddle
-    if left_paddle.y <= ball.y <= left_paddle.y + left_paddle.height:
-        if ball.x - ball.radius <= left_paddle.x + left_paddle.WIDTH:
-            ball.x_velocity *= -1
-
+    left_paddle.try_to_hit_the_ball(ball=ball)
+    
     # Right paddle
-    if right_paddle.y <= ball.y <= right_paddle.y + right_paddle.height:
-        if ball.x + ball.radius >= right_paddle.x:
-            ball.x_velocity *= -1
+    right_paddle.try_to_hit_the_ball(ball=ball)
     
     # If the ball goes out of the screen, reset it to the initial starting point
     if ball.x - ball.radius <= 0 or ball.x + ball.radius >= window.get_width():
