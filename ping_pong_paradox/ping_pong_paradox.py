@@ -19,13 +19,87 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
+
+
+class Net:
+    COLOR = WHITE
+    WIDTH = 10
+
+    def __init__(self, window: pygame.Surface) -> None:
+        self.window = window
+        self.rectangles = []
+
+    def calculate_net(self, number_of_net_parts: int = 20):
+        self.rectangles = []
+        # Iterate from top border (y=0) to bottom border (y=self.window.get_height()) in equal distance
+        for net_part_index, net_y in enumerate(range(0, self.window.get_height(), self.window.get_height() // number_of_net_parts)):
+            # Skip every second net part
+            if net_part_index % 2 == 1:
+                continue
+
+            # Save rectangles as dictionary, such that it can be unpacked for drawing
+            self.rectangles.append(
+                {
+                    "surface": self.window,
+                    "color": Net.COLOR,
+                    "rect": (
+                        self.window.get_width() // 2 - Net.WIDTH // 2,
+                        net_y,
+                        Net.WIDTH,
+                        self.window.get_height() / number_of_net_parts
+                    )
+                }
+            )
+
+    def draw(self):
+        [pygame.draw.rect(**rectangle) for rectangle in self.rectangles]
+
+
+class Ball:
+    MAX_RADIUS = 15
+    COLOR = WHITE
+    MAX_VELOCITY = 15
+
+    def __init__(
+        self,
+        window: pygame.Surface,
+        x: int = None,
+        y: int = None,
+        radius: int = None,
+        x_velocity:int = None,
+        y_velocity:int = None
+    ) -> None:
+
+        self.window = window
+        self.x = self.x_original = x or (window.get_width() * 0.4)
+        self.y = self.y_original = y or (window.get_height() // 2)
+        self.radius = radius or Ball.MAX_RADIUS
+        self.x_velocity = x_velocity or Ball.MAX_VELOCITY
+        self.y_velocity = y_velocity or Ball.MAX_VELOCITY
+
+    def draw(self):
+        pygame.draw.circle(
+            surface=self.window,
+            color=self.COLOR,
+            center=(self.x, self.y),
+            radius=self.radius
+        )
+    
+    def move(self):
+        self.x += self.x_velocity
+        self.y += self.y_velocity
+    
+    def reset(self):
+        self.x = self.x_original
+        self.y = self.y_original
+
 class Paddle:
     COLOR = WHITE
     BORDER_DISTANCE = 10
     WIDTH = 10
     # The name MAX_VELOCITY is used since in the future it is planned to in-/decrease 
     # paddle movement speed dynamically
-    MAX_VELOCITY = 5
+    MAX_VELOCITY = 15
 
     def __init__(
             self,
@@ -69,7 +143,7 @@ class Paddle:
         else:
             self.y = self.window.get_height() - self.height
 
-    def try_to_hit_the_ball(self, ball:"Ball"):
+    def try_to_hit_the_ball(self, ball:Ball):
         if self.y <= ball.y <= self.y + self.height:
             if not self.is_right_paddle and (ball.x - ball.radius <= self.x + self.WIDTH):
                 ball.x_velocity *= -1
@@ -88,78 +162,6 @@ class Paddle:
                 reduction_factor = (self.height / 2) / ball.MAX_VELOCITY
                 y_vel = difference_in_y / reduction_factor
                 ball.y_velocity = -1 * y_vel
-                
-class Net:
-    COLOR = WHITE
-    WIDTH = 10
-
-    def __init__(self, window: pygame.Surface) -> None:
-        self.window = window
-        self.rectangles = []
-
-    def calculate_net(self, number_of_net_parts: int = 20):
-        self.rectangles = []
-        # Iterate from top border (y=0) to bottom border (y=self.window.get_height()) in equal distance
-        for net_part_index, net_y in enumerate(range(0, self.window.get_height(), self.window.get_height() // number_of_net_parts)):
-            # Skip every second net part
-            if net_part_index % 2 == 1:
-                continue
-
-            # Save rectangles as dictionary, such that it can be unpacked for drawing
-            self.rectangles.append(
-                {
-                    "surface": self.window,
-                    "color": Net.COLOR,
-                    "rect": (
-                        self.window.get_width() // 2 - Net.WIDTH // 2,
-                        net_y,
-                        Net.WIDTH,
-                        self.window.get_height() / number_of_net_parts
-                    )
-                }
-            )
-
-    def draw(self):
-        [pygame.draw.rect(**rectangle) for rectangle in self.rectangles]
-
-
-class Ball:
-    MAX_RADIUS = 25
-    COLOR = WHITE
-    MAX_VELOCITY = 25
-
-    def __init__(
-        self,
-        window: pygame.Surface,
-        x: int = None,
-        y: int = None,
-        radius: int = None,
-        x_velocity:int = None,
-        y_velocity:int = None
-    ) -> None:
-
-        self.window = window
-        self.x = self.x_original = x or (window.get_width() * 0.4)
-        self.y = self.y_original = y or (window.get_height() // 2)
-        self.radius = radius or Ball.MAX_RADIUS // 2
-        self.x_velocity = x_velocity or Ball.MAX_VELOCITY // 2
-        self.y_velocity = y_velocity or Ball.MAX_VELOCITY // 2
-
-    def draw(self):
-        pygame.draw.circle(
-            surface=self.window,
-            color=self.COLOR,
-            center=(self.x, self.y),
-            radius=self.radius
-        )
-    
-    def move(self):
-        self.x += self.x_velocity
-        self.y += self.y_velocity
-    
-    def reset(self):
-        self.x = self.x_original
-        self.y = self.y_original
 
 def draw(
         window: pygame.Surface,
@@ -221,7 +223,7 @@ def main():
     paddles = [Paddle(WINDOW), Paddle(WINDOW, is_right_paddle=True)]
     net = Net(WINDOW)
     net.calculate_net(20)
-    ball = Ball(WINDOW, x_velocity=1, y_velocity=1)
+    ball = Ball(WINDOW, x_velocity=5, y_velocity=5)
 
     while run:
         clock.tick(FPS)
