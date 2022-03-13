@@ -118,8 +118,8 @@ class Ball:
     ) -> None:
 
         self.window = window
-        self.x = x or (window.get_width() * 0.4)
-        self.y = y or (window.get_height() // 2)
+        self.x = self.x_original = x or (window.get_width() * 0.4)
+        self.y = self.y_original = y or (window.get_height() // 2)
         self.radius = radius or Ball.MAX_RADIUS // 2
         self.x_velocity = x_velocity or Ball.MAX_VELOCITY // 2
         self.y_velocity = y_velocity or Ball.MAX_VELOCITY // 2
@@ -135,6 +135,10 @@ class Ball:
     def move(self):
         self.x += self.x_velocity
         self.y += self.y_velocity
+    
+    def reset(self):
+        self.x = self.x_original
+        self.y = self.y_original
 
 def draw(
         window: pygame.Surface,
@@ -166,7 +170,33 @@ def paddle_movement_handler(pressed_keys, paddles:List[Paddle]):
     if pressed_keys[pygame.K_k]:
         right_paddle.down()
 
+def collision_handler(window:pygame.Surface ,ball:Ball, paddles:List[Paddle]):
+    assert len(paddles) == 2; f"Currently only 2 paddles are supported. The given list of paddles has size {len(paddles)}"
 
+    left_paddle = paddles[0]
+    right_paddle = paddles[1]
+
+    # Top of screen
+    if ball.y - ball.radius < 0:
+        ball.y_velocity *= -1
+    # Bottom of screen
+    if ball.y + ball.radius > window.get_height():
+        ball.y_velocity *= -1
+    
+    # Left paddle
+    if left_paddle.y <= ball.y <= left_paddle.y + left_paddle.height:
+        if ball.x - ball.radius <= left_paddle.x + left_paddle.WIDTH:
+            ball.x_velocity *= -1
+
+    # Right paddle
+    if right_paddle.y <= ball.y <= right_paddle.y + right_paddle.height:
+        if ball.x + ball.radius >= right_paddle.x:
+            ball.x_velocity *= -1
+    
+    # If the ball goes out of the screen, reset it to the initial starting point
+    if ball.x - ball.radius <= 0 or ball.x + ball.radius >= window.get_width():
+        ball.reset()
+    
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -185,6 +215,7 @@ def main():
         
         pressed_keys = pygame.key.get_pressed()
         paddle_movement_handler(pressed_keys=pressed_keys, paddles=paddles)
+        collision_handler(window=WINDOW, ball=ball, paddles=paddles)
         draw(WINDOW, paddles=paddles, net=net, ball=ball)
 
     pygame.quit()
