@@ -6,7 +6,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from ping_pong_paradox import ping_pong_paradox
+from ping_pong_paradox import main
 from ping_pong_paradox import cli
 
 
