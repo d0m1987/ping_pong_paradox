@@ -10,6 +10,7 @@ from ping_pong_paradox import (
     Net,
     handler
 )
+
 from typing import List
 
 import pygame
@@ -27,7 +28,6 @@ def draw(
     window.fill(color=BLACK)
     [paddle.draw() for paddle in paddles]
     net.draw()
-    ball.move()
     ball.draw()
     pygame.display.update()
 
@@ -47,10 +47,12 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 break
-
+        
+        handler.movement.ball(ball=ball)
         pressed_keys = pygame.key.get_pressed()
-        handler.paddle_movement(pressed_keys=pressed_keys, paddles=paddles)
-        handler.collision(window=WINDOW, ball=ball, paddles=paddles)
+        handler.movement.paddle(pressed_keys=pressed_keys, paddles=paddles)
+        handler.collision.paddle_with_ball(ball=ball, paddles=paddles)
+        handler.collision.screen_border(window=WINDOW, ball=ball)
         draw(WINDOW, paddles=paddles, net=net, ball=ball)
 
     pygame.quit()
